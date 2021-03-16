@@ -1,0 +1,13 @@
+.icon-AdminLipscoreConfig {
+    height: 14px;
+    background-image: url('../img/lipscore.png');
+    background-repeat: no-repeat;
+    background-size: 14px;
+}
+#subtab-AdminLipscoreConfig > a > .material-icons {
+    height: 17px;
+    width: 17px;
+    background-image: url('../img/lipscore.png');
+    background-repeat: no-repeat;
+    background-size: 17px;
+}

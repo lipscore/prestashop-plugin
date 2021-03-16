@@ -1,0 +1,17 @@
+.lipscore-rating-small-wrapper {
+    width: 100%;
+    text-align: center;
+    margin-top:25px;
+}
+
+
+div#lipscore-rating-wrapper {
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+a.lipscore-rating-review-link {
+    font-size: 1.5em;
+}
+#lipscore-ratings-and-form {
+    margin-top: 40px;
+}
