@@ -8,7 +8,7 @@ use PrestaShop\PrestaShop\Core\Module\WidgetInterface;
 class ko_lipscore extends Module implements WidgetInterface {
     public function __construct() {
         $this->name = "ko_lipscore";
-        $this->version = "1.0.4";
+        $this->version = "1.0.6";
         $this->author = "KomplettNettbutikk.no AS";
         $this->need_instance = 0;
         $this->bootstrap = true;
@@ -36,7 +36,7 @@ class ko_lipscore extends Module implements WidgetInterface {
         if(($hookName == 'displayFooter'
         ) && Configuration::get(LipscoreClient::config_prefix.'displayFooter')) 
             return $this->fetch('module:'.$this->name.'/views/templates/hooks/displayFooter.tpl'); 
-        
+    
         if(Configuration::get(LipscoreClient::config_prefix.$hookName) 
             && ($hookName == 'displayFooterProduct' 
                 || $hookName == 'displayProductAdditionalInfo'
@@ -53,12 +53,15 @@ class ko_lipscore extends Module implements WidgetInterface {
 
         if(isset($configuration['product'])) {
             $identifier = 'id';
-            if(Configuration::get(LipscoreClient::config_prefix.'product_identifier') == 'product_reference')
+            if(Configuration::get(LipscoreClient::config_prefix.'product_identifier') == 'product_reference') {
                 $identifier = 'reference';
+            }
+            //dump($configuration['product']);die();
             $variables = array_merge($variables, [
                 'id' => $configuration['product'][$identifier],
                 'name' => $configuration['product']['name'],
                 'brand' => Configuration::get('PS_SHOP_NAME'),//$product->brand,
+               // 'category' => /*@todo */,
                 'url' => $configuration['product']['url'],
             ]);
         }
@@ -70,13 +73,30 @@ class ko_lipscore extends Module implements WidgetInterface {
         $this->context->controller->addCss($this->_path.'views/css/admin.css');
     }
 
+
+
+    
+    public function hookDisplayHeader($params)
+    {    
+        $this->smarty->assign([
+            'lipscore_api_key' => Configuration::get(LipscoreClient::config_prefix.'api_key'),
+            'lipscore_iso_lang' => $this->context->language->iso_code
+        ]);   
+        return $this->fetch('module:'.$this->name.'/views/templates/hooks/displayHeader.tpl'); 
+    }
+
+
     public function hookActionFrontControllerSetMedia($params)
     {
-        Media::addJsDef(['lipscore_api_key' => Configuration::get(LipscoreClient::config_prefix.'api_key')]);
-        $this->context->controller->registerJavascript('module-'.$this->name.'-script-head', 
-            'modules/'.$this->name.'/views/js/init_front_head.js', [
-              'position' => 'head',
-        ]);
+        // Media::addJsDef([
+        //     'lipscore_api_key' => Configuration::get(LipscoreClient::config_prefix.'api_key'),
+        //     'lipscore_iso_lang' => $this->context->language->iso_code
+        // ]);
+
+        // $this->context->controller->registerJavascript('module-'.$this->name.'-script-head', 
+        //     'modules/'.$this->name.'/views/js/init_front_head.js', [
+        //       'position' => 'head',
+        // ]);
         $this->context->controller->registerJavascript('module-'.$this->name.'-script-bottom', 
             'modules/'.$this->name.'/views/js/init_front_bottom.js', [
               'position' => 'bottom',
