@@ -1,9 +1,9 @@
 <div class="lipscore-rating-small-wrapper">
     <span class="lipscore-rating-small"
-        ls-product-name="{$name}"
-        ls-brand="{$brand}"
-        ls-product-id="{$id}"
-        ls-gtin="{$id}"
-        ls-product-url="{$url}"
+        data-ls-product-name="{$name}"
+        data-ls-brand="{$brand}"
+        data-ls-product-id="{$id}"
+        data-ls-gtin="{$gtin}"
+        data-ls-product-url="{$url}"
     ></span>
 </div>

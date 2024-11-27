@@ -1,24 +1,23 @@
-<?php return array (
-  'root' => 
-  array (
-    'pretty_version' => 'dev-master',
-    'version' => 'dev-master',
-    'aliases' => 
-    array (
+<?php return array(
+    'root' => array(
+        'pretty_version' => 'dev-main',
+        'version' => 'dev-main',
+        'type' => 'prestashop-module',
+        'install_path' => __DIR__ . '/../../',
+        'aliases' => array(),
+        'reference' => '4a97f50c8362d0320a0ace7b27c660c0fb06e929',
+        'name' => 'lipscore/prestashop',
+        'dev' => true,
     ),
-    'reference' => '013319b6013cb8a5d66b3ed9116c7b922b046386',
-    'name' => 'komplettnettbutikk/ko_lipscore',
-  ),
-  'versions' => 
-  array (
-    'komplettnettbutikk/ko_lipscore' => 
-    array (
-      'pretty_version' => 'dev-master',
-      'version' => 'dev-master',
-      'aliases' => 
-      array (
-      ),
-      'reference' => '013319b6013cb8a5d66b3ed9116c7b922b046386',
+    'versions' => array(
+        'lipscore/prestashop' => array(
+            'pretty_version' => 'dev-main',
+            'version' => 'dev-main',
+            'type' => 'prestashop-module',
+            'install_path' => __DIR__ . '/../../',
+            'aliases' => array(),
+            'reference' => '4a97f50c8362d0320a0ace7b27c660c0fb06e929',
+            'dev_requirement' => false,
+        ),
     ),
-  ),
 );
