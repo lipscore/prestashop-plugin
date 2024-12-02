@@ -7,6 +7,7 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'Composer\\InstalledVersions' => $vendorDir . '/composer/InstalledVersions.php',
-    'Komplettnettbutikk\\Lipscore\\LipscoreClient' => $baseDir . '/src/LipscoreClient.php',
-    'Komplettnettbutikk\\Lipscore\\OrderPreparation' => $baseDir . '/src/OrderPreparation.php',
+    'Lipscore\\Prestashop\\LipscoreClient' => $baseDir . '/src/LipscoreClient.php',
+    'Lipscore\\Prestashop\\LipscoreClientGuzzle' => $baseDir . '/src/LipscoreClientGuzzle.php',
+    'Lipscore\\Prestashop\\OrderPreparation' => $baseDir . '/src/OrderPreparation.php',
 );

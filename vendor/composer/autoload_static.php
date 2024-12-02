@@ -7,14 +7,14 @@ namespace Composer\Autoload;
 class ComposerStaticInita63277176870a5af60ef91975ac2da0d
 {
     public static $prefixLengthsPsr4 = array (
-        'K' => 
+        'L' => 
         array (
-            'Komplettnettbutikk\\Lipscore\\' => 28,
+            'Lipscore\\Prestashop\\' => 20,
         ),
     );
 
     public static $prefixDirsPsr4 = array (
-        'Komplettnettbutikk\\Lipscore\\' => 
+        'Lipscore\\Prestashop\\' => 
         array (
             0 => __DIR__ . '/../..' . '/src',
         ),
@@ -22,8 +22,9 @@ class ComposerStaticInita63277176870a5af60ef91975ac2da0d
 
     public static $classMap = array (
         'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
-        'Komplettnettbutikk\\Lipscore\\LipscoreClient' => __DIR__ . '/../..' . '/src/LipscoreClient.php',
-        'Komplettnettbutikk\\Lipscore\\OrderPreparation' => __DIR__ . '/../..' . '/src/OrderPreparation.php',
+        'Lipscore\\Prestashop\\LipscoreClient' => __DIR__ . '/../..' . '/src/LipscoreClient.php',
+        'Lipscore\\Prestashop\\LipscoreClientGuzzle' => __DIR__ . '/../..' . '/src/LipscoreClientGuzzle.php',
+        'Lipscore\\Prestashop\\OrderPreparation' => __DIR__ . '/../..' . '/src/OrderPreparation.php',
     );
 
     public static function getInitializer(ClassLoader $loader)

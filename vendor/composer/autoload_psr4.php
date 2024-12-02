@@ -6,5 +6,5 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
-    'Komplettnettbutikk\\Lipscore\\' => array($baseDir . '/src'),
+    'Lipscore\\Prestashop\\' => array($baseDir . '/src'),
 );
