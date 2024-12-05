@@ -1,6 +1,6 @@
 <?php
 
-namespace Komplettnettbutikk\Lipscore;
+namespace Lipscore\Prestashop;
 
 use Address;
 use Configuration;
@@ -12,12 +12,18 @@ use Product;
 
 class OrderPreparation
 {
+    /**
+     * @var LipscoreConfig
+     */
+    protected $config;
+
     public function __construct(Order $order)
     {
         if (!Validate::isLoadedObject($order)) {
-            throw new Exception('Ingen ordre ble lastet');
+            throw new Exception('No orders were loaded');
         }
 
+        $this->config = new LipscoreConfig();
         $this->ps_order = $order;
         $this->ps_customer = $this->ps_order->getCustomer();
     }
@@ -46,12 +52,73 @@ class OrderPreparation
     public function getOrderLines()
     {
         $order_lines = $this->ps_order->getProducts();
+        $productIdentifier = $this->config->getProductIdentifierAttribute();
+        $currency = new \Currency($this->ps_order->id_currency);
         $return = [];
+
+        $configSkuIdentifier = $this->config->getProductSkuAttribute();
+        if ($configSkuIdentifier) {
+            $skuIdentifier = $configSkuIdentifier;
+        }
+        $configGtinIdentifier = $this->config->getProductGtinAttribute();
+        if ($configGtinIdentifier) {
+            $gtinIdentifier = $configGtinIdentifier;
+        }
+        $configMpnIdentifier = $this->config->getProductMpnAttribute();
+        if ($configMpnIdentifier) {
+            $mpnIdentifier = $configMpnIdentifier;
+        }
+
         foreach ($order_lines as $order_line) {
+            $lang = $this->ps_order->id_lang;
+            $product = new Product($order_line['id_product'], true, $lang);
+            $category = $product->id_category_default;
+            $categoryName = '';
+            if ($category) {
+                $category = new \Category($category, $lang);
+                $categoryName = $category->name;
+            }
+
+            $variantId = $variantName = '';
+            $productAttributeId = $order_line['product_attribute_id'];
+            if (!empty($productAttributeId)) {
+                $combination = new \Combination($productAttributeId, $lang);
+                $variantName = [$product->name];
+                foreach ($combination->getAttributesName($lang) as $attribute) {
+                    $variantName[] = $attribute['name'];
+                }
+
+                $variantName = implode(' - ', $variantName);
+                $variantId = $product->reference . '-' . $combination->reference;
+            }
+
+            $link = Context::getContext()->link;
+            $image = \Image::getCover($order_line['id_product']);
+            $imagePath = '';
+            if (isset($image['id_image'])) {
+                $imagePath = $link->getImageLink($product->link_rewrite, $image['id_image'], 'large-default');
+            }
+
+            $brandValue = Configuration::get('PS_SHOP_NAME', $lang);
+            $brandAttribute = $this->config->getProductBrandAttribute();
+            if ($brandAttribute) {
+                $brandValue = $product->manufacturer_name;
+            }
+
             $return[] = [
-                'internal_id' => $order_line[Configuration::get(LipscoreClient::config_prefix . 'product_identifier')],
-                'url' => Context::getContext()->link->getProductLink(new Product($order_line['id_product'])),
-                'name' => $order_line['product_name'],
+                'internal_id' => $order_line[$productIdentifier],
+                'variant_id' => $variantId,
+                'variant_name' => $variantName,
+                'brand' => $brandValue,
+                'url' => $link->getProductLink($product),
+                'name' => $product->name,
+                'price' => $order_line['unit_price_tax_incl'],
+                'image_url' => $imagePath,
+                'currency' => $currency->iso_code,
+                'category' => $categoryName,
+                'mpn' => $product->{$mpnIdentifier},
+                'gtin' => $product->{$gtinIdentifier},
+                'sku_values' => $product->{$skuIdentifier}
             ];
         }
 
@@ -61,12 +128,24 @@ class OrderPreparation
     public function getInvitationArray()
     {
         $buyer = $this->getCustomerInfo();
+        $shop = new \Shop($this->ps_order->id_shop);
+        $idCustomer = '';
+        if ($this->ps_order->id_customer > 0) {
+            $idCustomer = (string) $this->ps_order->id_customer;
+        }
 
         return [
             'invitation' => [
                 'buyer_email' => $buyer['buyer_email'],
                 'buyer_name' => $buyer['buyer_name'],
-                'lang' => Context::getContext()->language->iso_code,
+                'purchased_at' => $this->ps_order->date_add,
+                'lang' => $this->config->getLocale(),
+                'parent_source_id' => (string) $this->config->getParentSourceId(),
+                'parent_source_name' => (string) $this->config->getParentSourceName(),
+                'source_id' => (string) $shop->id,
+                'source_name' => (string) $shop->name,
+                'internal_order_id' => $this->ps_order->reference,
+                'internal_customer_id' => $idCustomer
             ],
             'products' => $this->getOrderLines(),
         ];

@@ -1,41 +1,52 @@
 <?php
 
-namespace Komplettnettbutikk\Lipscore;
+namespace Lipscore\Prestashop;
 
-use Configuration;
+use Symfony\Component\HttpClient\HttpClient;
+use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Exception;
-use GuzzleHttp\Client;
 use Order;
 
 class LipscoreClient
 {
-    const config_prefix = 'ko_lipscore_';
-    const base_uri = 'https://api.lipscore.com/';
+    /**
+     * @var HttpClientInterface
+     */
+    protected $client;
+
+    /**
+     * @var LipscoreConfig
+     */
+    protected $config;
 
     public function __construct()
     {
-        if (!self::checkConfig()) {
+        $this->config = new LipscoreConfig();
+        if (!$this->checkConfig()) {
             throw new Exception('The module is not fully configured, and will not work until this is done.');
         }
 
-        $this->client = new Client([
-            'base_url' => self::base_uri,
-            'defaults' => [
-                'query' => [
-                    'api_key' => Configuration::get(self::config_prefix . 'api_key'),
-                ],
-                'headers' => [
-                    'X-Authorization' => Configuration::get(self::config_prefix . 'secret_api_key'),
-                ],
+        $this->client = HttpClient::create([
+            'base_uri' => $this->config->getBaseUri(),
+            'query' => [
+                'api_key' => $this->config->getApiKey(),
+            ],
+            'headers' => [
+                'X-Authorization' => $this->config->getApiSecretKey(),
             ],
         ]);
     }
 
-    public function getProducts()
+    public function getHooks()
     {
-        $response = $this->client->get('products');
+        try {
+            $response = $this->client->request('GET', 'hooks');
 
-        return $response->getStatusCode() == 200;
+            return $response->getStatusCode() == 200;
+        } catch (TransportExceptionInterface $e) {
+            return false;
+        }
     }
 
     public function createInvitation(Order $order)
@@ -43,19 +54,30 @@ class LipscoreClient
         $op = new OrderPreparation($order);
         $array = $op->getInvitationArray();
         try {
-            $response = $this->client->post('invitations', ['json' => $array]);
+            $response = $this->client->request('POST', 'invitations', [
+                'json' => $array,
+                'timeout' => 1
+            ]);
             if ($response->getStatusCode() == 201) {
                 return true;
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
+            $this->log($e->getMessage());
         }
-
         return false;
     }
 
-    public static function checkConfig()
+    public function checkConfig()
     {
-        return !empty(Configuration::get(self::config_prefix . 'api_key'))
-            && !empty(Configuration::get(self::config_prefix . 'secret_api_key'));
+        return !empty($this->config->getApiKey()) && !empty($this->config->getApiSecretKey());
+    }
+
+    protected function log($message): void
+    {
+        if (!_PS_MODE_DEV_) {
+            return;
+        }
+
+        \PrestaShopLogger::addLog($message, 2);
     }
 }
